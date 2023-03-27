@@ -1,0 +1,21 @@
+version: "3.9"
+# for local development only
+services:
+  app_db:
+    image: "postgres:14"
+    volumes:
+      - ${APP_PGDATA_DIR}:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+  user_data_db:
+    image: "postgres:14"
+    volumes:
+      - ${USER_PGDATA_DIR}:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "17385:5432"

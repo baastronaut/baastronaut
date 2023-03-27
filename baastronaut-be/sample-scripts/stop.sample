@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+# Start section: variables to set.
+APP_PGDATA_DIR=
+USER_PGDATA_DIR=
+# End section: variables to set.
+
+if [ -z "$PGRST_PID" ];
+then
+  echo "Error: PGRST_PID is not set";
+  exit 1;
+fi
+
+kill -9 $PGRST_PID
+
+APP_PGDATA_DIR=$APP_PGDATA_DIR USER_PGDATA_DIR=$USER_PGDATA_DIR docker compose down

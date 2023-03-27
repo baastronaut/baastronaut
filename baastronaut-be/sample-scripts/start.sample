@@ -1,0 +1,18 @@
+#!/bin/bash
+set -e
+
+# Start section: variables to set.
+APP_PGDATA_DIR=
+USER_PGDATA_DIR=
+PGRST_DB_URI=
+PGRST_CONF_FILE=
+PGRST_LOGS_FOLDER=
+# Key for verifying JWTs. This should be the **public** key used in the backend app's .env file.
+PGRST_JWT_SECRET=
+# End section: variables to set.
+
+APP_PGDATA_DIR=$APP_PGDATA_DIR USER_PGDATA_DIR=$USER_PGDATA_DIR docker compose up -d
+
+sleep 3 # wait for db to be ready
+
+PGRST_DB_URI=$PGRST_DB_URI PGRST_JWT_SECRET=$PGRST_JWT_SECRET postgrest $PGRST_CONF_FILE >> $PGRST_LOGS_FOLDER/postgrest.log 2>> $PGRST_LOGS_FOLDER/postgrest.error.log &
