@@ -8,6 +8,12 @@
 
 Baastronaut - Backend-as-a-Service Astronaut - is an open-source Airtable alternative. It is built on PostgREST and hence, Postgres. The web-based app frontend and spreadsheet-like UI makes it easy for non-technical users to create spreadsheets and add data, while the flexible and comprehensive REST APIs give developers a powerful toolset to work with.
 
+## Status
+- [x] **An MVP that we are thoroughly embarrassed about**: It works, at least on my machine, I promise! Not for production uses.
+- [ ] **Alpha**: Easy to setup, all the basic features to use with a team.
+- [ ] **Beta**: Feature-rich and stable. Cloud version is also ready.
+- [ ] **Public**: General Availability.
+
 ## Components
 - [baastronaut-be](baastronaut-be) is the backend for this project.
 - [baastronaut-fe](baastronaut-fe) is the frontend for this project.
@@ -23,12 +29,6 @@ To see the app working end-to-end, you need these components running:
 4. Postgres database - you need 2 Postgres databases (but they can be on the same server instance).
 
 The [backend design doc](./be-design.md) provides a detailed explanation of our design choice and how user projects and spreadsheets map to Postgres objects.
-
-## Status
-- [x] **An MVP that we are thoroughly embarrassed about**: It works, at least on my machine, I promise! Not for production uses.
-- [ ] **Alpha**: Easy to setup, all the basic features to use with a team.
-- [ ] **Beta**: Feature-rich and stable. Cloud version is also ready.
-- [ ] **Public**: General Availability.
 
 ## Features
 - [x] Create spreadsheets with basic data types.
