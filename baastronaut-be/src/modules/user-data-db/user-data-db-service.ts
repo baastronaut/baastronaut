@@ -2,6 +2,7 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { Type } from 'class-transformer';
 import { IsArray, IsBoolean, ValidateNested } from 'class-validator';
 import { Client, Pool } from 'pg';
+import { validateOrThrow } from '../../utils/helpers';
 import { IsValidIdentifier } from '../../utils/validators';
 
 type BaseConnOptions = {
@@ -65,6 +66,25 @@ export class TableDetails {
 
   @IsValidIdentifier()
   identifier: string;
+}
+
+export class AddColumnDetails {
+  @ValidateNested()
+  @Type(() => TableDetails)
+  table: TableDetails;
+
+  @ValidateNested()
+  @Type(() => NewColumnDetails)
+  newColumn: NewColumnDetails;
+}
+
+export class DropColumnDetails {
+  @ValidateNested()
+  @Type(() => TableDetails)
+  table: TableDetails;
+
+  @IsValidIdentifier()
+  columnIdentifier: string;
 }
 
 export class NewTableDetails extends TableDetails {
@@ -136,6 +156,8 @@ export class UserDataDBService {
    * Creates new schema and new user. The user role is set as the owner of the schema.
    */
   async createSchemaWithOwner(newSchemaDetails: NewSchemaDetails) {
+    await validateOrThrow(NewSchemaDetails, newSchemaDetails);
+
     const createRoleQuery = `CREATE ROLE ${newSchemaDetails.owner} PASSWORD '${newSchemaDetails.password}' LOGIN`;
     const setSearchPathQuery = `ALTER ROLE ${newSchemaDetails.owner} SET search_path = "${newSchemaDetails.identifier}"`;
     const createSchemaQuery = `CREATE SCHEMA ${newSchemaDetails.identifier} AUTHORIZATION ${newSchemaDetails.owner}`;
@@ -176,6 +198,8 @@ export class UserDataDBService {
     connCredentials: ConnCredentials,
     creatorColumn: string,
   ) {
+    await validateOrThrow(NewTableDetails, newTableDetails);
+
     const primaryColumns = newTableDetails.columns.filter((col) => col.primary);
     const primaryKeys = primaryColumns.length
       ? `PRIMARY KEY(${primaryColumns.map((pc) => pc.identifier).join(', ')})`
@@ -183,14 +207,7 @@ export class UserDataDBService {
     const createTableQuery = `CREATE TABLE ${newTableDetails.schema}.${
       newTableDetails.identifier
     } (
-      ${newTableDetails.columns
-        .map(
-          (column) =>
-            `${column.identifier} ${column.columnType} ${
-              column.required ? 'NOT NULL' : ''
-            } ${column.default ? `DEFAULT ${column.default}` : ''}`,
-        )
-        .join(',\n')}
+      ${newTableDetails.columns.map(newColumnDetailsToPartialSql).join(',\n')}
       ${primaryKeys ? `, ${primaryKeys}` : ''}
     )`;
 
@@ -224,11 +241,7 @@ export class UserDataDBService {
   }
 
   async dropTable(tableDetails: TableDetails) {
-    if (!tableDetails.schema) {
-      throw new BadRequestException(
-        'Cannot drop non fully qualified table names.',
-      );
-    }
+    await validateOrThrow(TableDetails, tableDetails);
 
     const dropTableQuery = `DROP table ${tableDetails.schema}.${tableDetails.identifier}`;
 
@@ -236,6 +249,34 @@ export class UserDataDBService {
 
     await executeTransactionalQueries(this.userDataDBAdminConn, [
       dropTableQuery,
+    ]);
+  }
+
+  async addTableColumn(addColumnDetails: AddColumnDetails) {
+    await validateOrThrow(AddColumnDetails, addColumnDetails);
+
+    const { table, newColumn } = addColumnDetails;
+    const addColumnQuery = `ALTER table ${table.schema}.${
+      table.identifier
+    } ADD COLUMN ${newColumnDetailsToPartialSql(newColumn)}`;
+
+    checkSQLSafeOrThrow(addColumnQuery);
+
+    await executeTransactionalQueries(this.userDataDBAdminConn, [
+      addColumnQuery,
+    ]);
+  }
+
+  async dropTableColumn(dropColumnDetails: DropColumnDetails) {
+    await validateOrThrow(DropColumnDetails, dropColumnDetails);
+
+    const { table } = dropColumnDetails;
+    const dropColumnQuery = `ALTER table ${table.schema}.${table.identifier} DROP COLUMN ${dropColumnDetails.columnIdentifier}`;
+
+    checkSQLSafeOrThrow(dropColumnQuery);
+
+    await executeTransactionalQueries(this.userDataDBAdminConn, [
+      dropColumnQuery,
     ]);
   }
 
@@ -258,4 +299,10 @@ export class UserDataDBService {
     await client.connect();
     return client;
   }
+}
+
+function newColumnDetailsToPartialSql(column: NewColumnDetails): string {
+  return `${column.identifier} ${column.columnType} ${
+    column.required ? 'NOT NULL' : ''
+  } ${column.default ? `DEFAULT ${column.default}` : ''}`;
 }

@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Table } from './table.entity';
+import { Table } from '../tables/table.entity';
 
 export enum ColumnType {
   INTEGER = 'INTEGER',

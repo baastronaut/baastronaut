@@ -14,6 +14,7 @@ import { BearerAuthGuard } from './modules/auth/bearer-auth.guard';
 import { ApiTokensModule } from './modules/api-tokens/api-tokens.module';
 import { UsersModule } from './modules/users/users.module';
 import { WorkspacesModule } from './modules/workspaces/workspaces.module';
+import { ColumnsModule } from './modules/columns/columns.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { WorkspacesModule } from './modules/workspaces/workspaces.module';
     }),
     ProjectsModule,
     TablesModule,
+    ColumnsModule,
     UserDataModule,
     UserApisModule,
     UserApiDocsModule,
