@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { Project } from '../projects/project.entity';
 import { User } from '../users/user.entity';
-import { TableColumn } from './column.entity';
+import { TableColumn } from '../columns/column.entity';
 
 @Entity({
   name: 'tables',

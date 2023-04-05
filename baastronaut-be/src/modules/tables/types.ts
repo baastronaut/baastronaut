@@ -1,7 +1,6 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
-  IsBoolean,
   IsEnum,
   IsInt,
   IsOptional,
@@ -10,24 +9,11 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { IsNotBlank, IsValidName } from '../../utils/validators';
-import { ColumnType } from './column.entity';
-
-/**
- * Not supporting default values yet just to simplify things.
- */
-export class ColumnReq {
-  @Length(1, 63)
-  @IsValidName()
-  name: string;
-
-  description: string | null;
-
-  @IsEnum(ColumnType)
-  columnType: ColumnType;
-
-  @IsBoolean()
-  required: boolean;
-}
+import {
+  ColumnResp,
+  CreateColumnReq,
+  GeneratedColumnResp,
+} from '../columns/types';
 
 export class CreateTableReq {
   @Length(1, 63)
@@ -38,28 +24,9 @@ export class CreateTableReq {
 
   @ValidateNested()
   @IsArray()
-  @Type(() => ColumnReq)
-  columns: ColumnReq[];
+  @Type(() => CreateColumnReq)
+  columns: CreateColumnReq[];
 }
-
-type BaseColumnDetails = {
-  pgColumnIdentifier: string;
-  name: string;
-  columnType: ColumnType;
-  required: boolean;
-};
-
-export type GeneratedColumnResp = BaseColumnDetails & {
-  primary: boolean;
-};
-
-export type ColumnResp = BaseColumnDetails & {
-  id: number;
-  createdAt: string;
-  updatedAt: string;
-  tableId: number;
-  description: string | null;
-};
 
 export type TableResp = {
   id: number;
