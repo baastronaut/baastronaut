@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TableColumn } from './column.entity';
 import { UserDataDBService } from '../user-data-db/user-data-db-service';
-import { ColumnResp, CreateColumnReq } from './types';
+import { AddColumnReq, ColumnResp } from './types';
 import { Table } from '../tables/table.entity';
 import { nameToPostgresIdentifier } from '../../utils/names-identifiers-parser';
 import { mapColumnTypeToPostgresType } from './column-helpers';
@@ -21,7 +21,7 @@ export class ColumnsService {
   async addTableColumn(
     projectId: number,
     tableId: number,
-    createColumnReq: CreateColumnReq,
+    addColumnReq: AddColumnReq,
   ): Promise<ColumnResp> {
     const tableEntity = await this.tablesRepository.findOne({
       where: {
@@ -36,7 +36,7 @@ export class ColumnsService {
       throw new NotFoundException('Table not found.');
     }
 
-    const pgColumnIdentifier = nameToPostgresIdentifier(createColumnReq.name);
+    const pgColumnIdentifier = nameToPostgresIdentifier(addColumnReq.name);
 
     await this.userDataDBService.addTableColumn({
       table: {
@@ -45,8 +45,8 @@ export class ColumnsService {
       },
       newColumn: {
         identifier: pgColumnIdentifier,
-        columnType: mapColumnTypeToPostgresType(createColumnReq.columnType),
-        required: createColumnReq.required,
+        columnType: mapColumnTypeToPostgresType(addColumnReq.columnType),
+        required: false,
         primary: false,
         default: undefined,
       },
@@ -54,11 +54,11 @@ export class ColumnsService {
 
     const newColumnEntity = await this.columnsRepository.save({
       tableId: tableEntity.id!,
-      name: createColumnReq.name,
-      description: createColumnReq.description,
-      columnType: createColumnReq.columnType,
+      name: addColumnReq.name,
+      description: addColumnReq.description,
+      columnType: addColumnReq.columnType,
       pgColumnIdentifier,
-      required: createColumnReq.required,
+      required: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     });

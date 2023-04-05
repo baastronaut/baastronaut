@@ -3,9 +3,9 @@ import { IsValidName } from '../../utils/validators';
 import { ColumnType } from './column.entity';
 
 /**
- * Not supporting default values yet just to simplify things.
+ * For adding columns to existing table.
  */
-export class CreateColumnReq {
+export class AddColumnReq {
   @Length(1, 63)
   @IsValidName()
   name: string;
@@ -15,6 +15,13 @@ export class CreateColumnReq {
   @IsEnum(ColumnType)
   columnType: ColumnType;
 
+  // TODO: required and default (if required is true)
+}
+
+/**
+ * Not supporting default values yet just to simplify things.
+ */
+export class CreateColumnReq extends AddColumnReq {
   @IsBoolean()
   required: boolean;
 }

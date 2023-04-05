@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { HasAdminRightsGuard } from '../workspaces/workspace-auth.guard';
 import { ColumnsService } from './columns.service';
-import { ColumnResp, CreateColumnReq } from './types';
+import { AddColumnReq, ColumnResp } from './types';
 
 @Controller(
   'workspaces/:workspaceId/projects/:projectId/tables/:tableId/columns',
@@ -22,12 +22,12 @@ export class ColumnsController {
   async addTableColumn(
     @Param('projectId', ParseIntPipe) projectId: number,
     @Param('tableId', ParseIntPipe) tableId: number,
-    @Body() createColumnReq: CreateColumnReq,
+    @Body() addColumnReq: AddColumnReq,
   ): Promise<ColumnResp> {
     return await this.columnsService.addTableColumn(
       projectId,
       tableId,
-      createColumnReq,
+      addColumnReq,
     );
   }
 
