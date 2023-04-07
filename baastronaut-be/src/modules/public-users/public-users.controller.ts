@@ -36,11 +36,15 @@ export class PublicUsersController {
   @Post('register')
   async register(@Body() registerUserReq: RegisterUserReq) {
     await this.usersService.register(registerUserReq);
+
+    return { status: 'ok' };
   }
 
   @Post('verify-email')
   async verifyEmail(@Body() verifyEmailReq: VerifyEmailReq) {
     await this.usersService.verifyEmail(verifyEmailReq);
+
+    return { status: 'ok' };
   }
 
   @UseGuards(LocalAuthGuard)
