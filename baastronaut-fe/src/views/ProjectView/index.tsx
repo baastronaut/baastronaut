@@ -85,9 +85,9 @@ const ProjectView = ({ workspaceId, projectId }: Props) => {
   }
 
   function renderTableTabsPanel() {
-    return (
+    return hasTables ? (
       <Tabs.List>
-        {tables?.map((table) => {
+        {tables.map((table) => {
           const { id } = table;
 
           return (
@@ -99,6 +99,10 @@ const ProjectView = ({ workspaceId, projectId }: Props) => {
           );
         })}
       </Tabs.List>
+    ) : (
+      <Text color="dimmed" align="center" p="xl">
+        There are no tables in this project yet
+      </Text>
     );
   }
 
@@ -138,10 +142,6 @@ const ProjectView = ({ workspaceId, projectId }: Props) => {
 
         {loadingTables ? (
           renderLoader()
-        ) : !hasTables ? (
-          <Text color="dimmed" align="center">
-            There are no tables in this project yet
-          </Text>
         ) : (
           <Tabs
             keepMounted={false}
