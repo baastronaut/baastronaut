@@ -21,6 +21,12 @@ export class InviteMembersReq {
   role: Role;
 }
 
+export type InviteMembersResp = {
+  invitesSent: number;
+  invitesAlreadyPending: number;
+  invitesAlreadyMember: number;
+};
+
 export class WorkspaceMembersInviteReq {
   @ValidateNested()
   @IsArray()
@@ -38,11 +44,17 @@ export class WorkspacesController {
     @Param('workspaceId', ParseIntPipe) workspaceId: number,
     @Body() workspaceInviteReq: WorkspaceMembersInviteReq,
     @Request() authedReq: AuthedRequest,
-  ) {
-    await this.workspacesService.inviteMembersToWorkspace(
+  ): Promise<InviteMembersResp> {
+    const inviteRespDto = await this.workspacesService.inviteMembersToWorkspace(
       workspaceId,
       workspaceInviteReq.invites,
       authedReq.user,
     );
+
+    return {
+      invitesSent: inviteRespDto.invitesSent,
+      invitesAlreadyPending: inviteRespDto.invitesAlreadyPending,
+      invitesAlreadyMember: inviteRespDto.invitesAlreadyMember,
+    };
   }
 }

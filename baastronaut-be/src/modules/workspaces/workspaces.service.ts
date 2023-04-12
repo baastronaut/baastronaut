@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, IsNull, Repository } from 'typeorm';
 import { AuthedUser } from '../auth/auth.service';
 import { UsersService } from '../users/users.service';
 import { WorkspaceInvite } from './workspace-invites.entity';
@@ -24,6 +24,12 @@ export class InviteServiceDto {
   role: Role;
 }
 
+export type InviteRespDto = {
+  invitesSent: number;
+  invitesAlreadyPending: number;
+  invitesAlreadyMember: number;
+};
+
 @Injectable()
 export class WorkspacesService {
   private logger = new Logger(WorkspacesService.name);
@@ -41,7 +47,7 @@ export class WorkspacesService {
     workspaceId: number,
     workspaceInvites: InviteServiceDto[],
     requestingUser: AuthedUser,
-  ) {
+  ): Promise<InviteRespDto> {
     if (workspaceInvites.some((invite) => !CORE_MEMBERS.has(invite.role))) {
       throw new BadRequestException(
         `This invite feature is only for these roles: ${Array.from(
@@ -60,25 +66,45 @@ export class WorkspacesService {
       throw new NotFoundException('Workspace not found.');
     }
 
-    workspaceInvites.forEach(
-      (invite) => (invite.email = invite.email.trim().toLowerCase()),
-    );
+    const emails = new Set<string>();
+    workspaceInvites.forEach((invite) => {
+      invite.email = invite.email.trim().toLowerCase();
+      if (emails.has(invite.email)) {
+        throw new BadRequestException(
+          `Duplicated email ${invite.email} found in request body.`,
+        );
+      }
+      emails.add(invite.email);
+    });
 
-    const uniqueEmails = [
-      ...new Set(workspaceInvites.map((invite) => invite.email)),
-    ];
+    const existingUsers = await this.usersService.findByEmails(
+      Array.from(emails),
+    );
+    const existingWorkspaceMemberEmails = existingUsers
+      .filter((user) =>
+        user.userWorkspaces
+          ?.map((userWorkspace) => userWorkspace.workspaceId!)
+          .includes(workspaceId),
+      )
+      .map((user) => user.email.toLowerCase());
 
-    const existingUsers = await this.usersService.findByEmails(uniqueEmails);
-    const existingWorkspaceMembers = existingUsers.filter((user) =>
-      user.userWorkspaces
-        ?.map((userWorkspace) => userWorkspace.workspaceId!)
-        .includes(workspaceId),
-    );
-    const existingWorkspaceMemberEmails = existingWorkspaceMembers.map((user) =>
-      user.email.toLowerCase(),
-    );
-    const nonMembers = workspaceInvites.filter(
+    let nonMembers = workspaceInvites.filter(
       (invite) => !existingWorkspaceMemberEmails.includes(invite.email),
+    );
+
+    const existingWorkspaceInviteEmails = new Set(
+      (
+        await this.workspaceInvitesRepository.find({
+          where: {
+            workspaceId,
+            email: In(nonMembers.map((nm) => nm.email)),
+          },
+        })
+      ).map((invite) => invite.email),
+    );
+
+    nonMembers = nonMembers.filter(
+      (nonMember) => !existingWorkspaceInviteEmails.has(nonMember.email),
     );
 
     const newInvites = await this.workspaceInvitesRepository.save(
@@ -88,6 +114,7 @@ export class WorkspacesService {
         token: uuidV4(),
         inviterId: requestingUser.id,
         role: nonMember.role,
+        accepted: null,
       })),
     );
 
@@ -112,5 +139,11 @@ export class WorkspacesService {
         }
       }),
     );
+
+    return {
+      invitesSent: newInvites.length,
+      invitesAlreadyPending: nonMembers.length - newInvites.length,
+      invitesAlreadyMember: workspaceInvites.length - nonMembers.length,
+    };
   }
 }
