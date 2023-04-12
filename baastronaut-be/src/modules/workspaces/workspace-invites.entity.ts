@@ -6,6 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Role } from '../../utils/constants';
 import { User } from '../users/user.entity';
 import { Workspace } from './workspace.entity';
 
@@ -52,4 +53,9 @@ export class WorkspaceInvite {
     name: 'created_at',
   })
   createdAt: Date;
+
+  @Column({
+    name: 'role',
+  })
+  role: Role;
 }

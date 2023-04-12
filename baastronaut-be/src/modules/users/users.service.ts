@@ -3,12 +3,13 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { PasswordHashService } from '../password-hash/password-hash.service';
 import { Workspace } from '../workspaces/workspace.entity';
-import { Role, UserWorkspace } from './user-workspace.entity';
+import { UserWorkspace } from './user-workspace.entity';
 import { User } from './user.entity';
 import { v4 as uuidV4 } from 'uuid';
 import { EmailService } from '../email/email.service';
 import { IsEmail, IsString, Length, MaxLength } from 'class-validator';
 import { IsNotBlank } from '../../utils/validators';
+import { Role } from '../../utils/constants';
 
 const TOKEN_VALID_HOURS = 48;
 const EMAIL_MAX_LENGTH = 300;

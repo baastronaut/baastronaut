@@ -7,12 +7,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthedUser } from '../auth/auth.service';
-import { Role } from '../users/user-workspace.entity';
 import { UsersService } from '../users/users.service';
 import { WorkspaceInvite } from './workspace-invites.entity';
 import { v4 as uuidV4 } from 'uuid';
 import { EmailService } from '../email/email.service';
 import { Workspace } from './workspace.entity';
+import { Role } from '../../utils/constants';
 
 export const CORE_MEMBERS = new Set<Role>([
   Role.OWNER,
@@ -87,6 +87,7 @@ export class WorkspacesService {
         email: nonMember.email,
         token: uuidV4(),
         inviterId: requestingUser.id,
+        role: nonMember.role,
       })),
     );
 
@@ -97,6 +98,7 @@ export class WorkspacesService {
             recipient: invite.email,
             token: invite.token,
             workspaceName: workspace.name,
+            role: invite.role,
             inviter:
               [requestingUser.firstName, requestingUser.lastName]
                 .filter((s) => s)

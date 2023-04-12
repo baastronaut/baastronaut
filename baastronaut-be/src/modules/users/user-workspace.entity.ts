@@ -7,15 +7,9 @@ import {
   PrimaryColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Role } from '../../utils/constants';
 import { User } from '../users/user.entity';
 import { Workspace } from '../workspaces/workspace.entity';
-
-export enum Role {
-  OWNER = 'OWNER',
-  ADMIN = 'ADMIN',
-  MEMBER = 'MEMBER',
-  DATA_COLLABORATOR = 'DATA_COLLABORATOR',
-}
 
 @Entity({
   name: 'user_workspaces',

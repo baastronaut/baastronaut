@@ -10,3 +10,10 @@ export enum FRONTEND_PATHS {
   VERIFY_EMAIL = '/verify-email',
   WS_INVITE = '/workspace-invite',
 }
+
+export enum Role {
+  OWNER = 'OWNER',
+  ADMIN = 'ADMIN',
+  MEMBER = 'MEMBER',
+  DATA_COLLABORATOR = 'DATA_COLLABORATOR',
+}

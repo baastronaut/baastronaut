@@ -4,7 +4,7 @@ import { PasswordHashService } from '../password-hash/password-hash.service';
 import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 import { Request } from 'express';
-import { Role } from '../users/user-workspace.entity';
+import { Role } from '../../utils/constants';
 
 type WorkspaceRole = {
   workspaceId: number;

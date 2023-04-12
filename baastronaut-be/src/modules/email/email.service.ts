@@ -50,14 +50,14 @@ export class EmailService {
     token: string;
     inviter: string;
     workspaceName: string;
+    role: string;
   }) {
-    // TODO: differentiate wording between register user who is not in workspace and non-registered email.
-    const { recipient, inviter, token, workspaceName } = inviteDetails;
+    const { recipient, inviter, token, workspaceName, role } = inviteDetails;
     const mailOptions = {
       from: this.emailUser,
       to: recipient,
       subject: `You have been invited to join the workspace ${workspaceName}`,
-      html: `${inviter} has invited you to join the workspace ${workspaceName}.<br />Click on the link below to join the workspace:<br />${this.buildInviteLink(
+      html: `${inviter} has invited you to join the workspace ${workspaceName} as a ${role}.<br />Click on the link below to join the workspace:<br />${this.buildInviteLink(
         recipient,
         token,
       )}`,

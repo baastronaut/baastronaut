@@ -3,8 +3,8 @@ import {
   ExecutionContext,
   NotFoundException,
 } from '@nestjs/common';
+import { Role } from '../../utils/constants';
 import { AuthedUser } from '../auth/auth.service';
-import { Role } from '../users/user-workspace.entity';
 
 const ADMINS = new Set<Role>([Role.ADMIN, Role.OWNER]);
 const OWNERS = new Set<Role>([Role.OWNER]);
