@@ -123,7 +123,17 @@ export class ProjectsService {
       true,
     );
 
+    this.logger.log(
+      { schema: project.pgSchemaIdentifier },
+      'Schema dropped successfully',
+    );
+
     await this.removeSchemaAndReloadPostgrestConfig(project.pgSchemaIdentifier);
+
+    this.logger.log(
+      { schema: project.pgSchemaIdentifier },
+      'Schema removed from PostgREST config and config reloaded successfully',
+    );
 
     // ON DELETE CASCADE is already set in the database for the following relations:
     // project -> tables, project -> api_tokens, tables -> columns
