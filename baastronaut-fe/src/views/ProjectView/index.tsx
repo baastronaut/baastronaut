@@ -20,7 +20,7 @@ import { useProject, useTablesByProject } from 'src/hooks';
 import { Routes } from 'utils/constants';
 import Link from 'next/link';
 import CreateTableModal from './CreateTableModal';
-import CrudTable from './CrudTable';
+import CrudGrid from './CrudGrid';
 
 interface Props {
   workspaceId: number;
@@ -93,7 +93,11 @@ const ProjectView = ({ workspaceId, projectId }: Props) => {
           return (
             <Tabs.Panel key={id} value={`${id}`} py="md">
               {/* <ScrollArea styles={{ root: { minHeight: '60vh' } }}> */}
-              <CrudTable projectId={projectId} table={table} />
+              <CrudGrid
+                workspaceId={workspaceId}
+                projectId={projectId}
+                table={table}
+              />
               {/* </ScrollArea> */}
             </Tabs.Panel>
           );

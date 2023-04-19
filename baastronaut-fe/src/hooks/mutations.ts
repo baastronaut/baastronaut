@@ -130,6 +130,106 @@ export function useTableDataUpdate({
   };
 }
 
+export function useAddTableColumn(
+  {
+    workspaceId,
+    projectId,
+    tableId,
+  }: {
+    workspaceId: number;
+    projectId: number;
+    tableId: number;
+  },
+  options?: {
+    onSuccess?: () => void;
+  },
+) {
+  const apiClient = useApiClient();
+
+  const { mutate, error, isSuccess, isLoading } = useMutation(
+    (data: { name: string; description: string; columnType: ColumnType }) => {
+      return apiClient.doFetchReq({
+        path: `workspaces/${workspaceId}/projects/${projectId}/tables/${tableId}/columns`,
+        method: 'POST',
+        jsonBody: data,
+      });
+    },
+    {
+      ...options,
+    },
+  );
+
+  return {
+    addTableColumn: mutate,
+    addTableColumnLoading: isLoading,
+    addTableColumnError: error,
+    addTableColumnSuccess: isSuccess,
+  };
+}
+
+export function useDeleteTableColumn({
+  workspaceId,
+  projectId,
+  tableId,
+}: {
+  workspaceId: number;
+  projectId: number;
+  tableId: number;
+}) {
+  const apiClient = useApiClient();
+
+  const { mutate, error, isSuccess, isLoading } = useMutation(
+    ({ columnId }: { columnId: number }) => {
+      return apiClient.doFetchReq({
+        path: `/workspaces/${workspaceId}/projects/${projectId}/tables/${tableId}/columns/${columnId}`,
+        method: 'DELETE',
+      });
+    },
+  );
+
+  return {
+    deleteTableColumn: mutate,
+    deleteTableColumnLoading: isLoading,
+    deleteTableColumnError: error,
+    deleteTableColumnSuccess: isSuccess,
+  };
+}
+
+export function useDeleteTableRow(
+  {
+    projectId,
+    tableId,
+  }: {
+    projectId: number;
+    tableId: number;
+  },
+  options?: {
+    onSuccess?: () => void;
+  },
+) {
+  const apiClient = useApiClient();
+
+  const { mutate, error, isSuccess, isLoading } = useMutation(
+    (id: number) => {
+      return apiClient.doFetchReq({
+        path: `/user-data/projects/${projectId}/tables/${tableId}`,
+        method: 'DELETE',
+        urlSearchParams: new URLSearchParams({ id: `eq.${id}` }),
+      });
+    },
+    {
+      ...options,
+    },
+  );
+
+  return {
+    deleteTableRow: mutate,
+    deleteTableRowLoading: isLoading,
+    deleteTableRowError: error,
+    deleteTableRowSuccess: isSuccess,
+  };
+}
+
 export function useGenerateApiToken({
   workspaceId,
   projectId,
